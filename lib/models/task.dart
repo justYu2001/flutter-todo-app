@@ -14,24 +14,12 @@ class Task extends ChangeNotifier {
 
   Task(this.title);
 
-  void complete() {
-    _isDone = true;
-    print('complete');
-    notifyListeners();
+  void toggleCompleted() {
+    _isDone = !_isDone;
   }
 
-  void redo() {
-    _isDone = false;
-    notifyListeners();
-  }
-
-  void markAsImportant() {
-    _isImportant = true;
-    notifyListeners();
-  }
-
-  void markAsUnimportant() {
-    _isImportant = false;
+  void toggleImportant() {
+    _isImportant = !_isImportant;
     notifyListeners();
   }
 

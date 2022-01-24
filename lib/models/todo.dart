@@ -8,9 +8,8 @@ class TodoModal extends ChangeNotifier {
   final List<Task> _todoList = [];
 
   UnmodifiableListView<Task> get incomplete {
-    final incompletedTodoList = _todoList.where((todo) => !todo.isDone).toList();
-    print('list rebuild');
-    return UnmodifiableListView(incompletedTodoList);
+    final uncompletedTodoList = _todoList.where((todo) => !todo.isDone).toList();
+    return UnmodifiableListView(uncompletedTodoList);
   }
 
   UnmodifiableListView<Task> get completion {
@@ -23,6 +22,11 @@ class TodoModal extends ChangeNotifier {
     return UnmodifiableListView(importantTodoList);
   }
 
+  void toggleCompleted(Task task) {
+    task.toggleCompleted();
+    notifyListeners();
+  }
+
   void add(Task task) {
     _todoList.add(task);
     notifyListeners();
@@ -32,8 +36,6 @@ class TodoModal extends ChangeNotifier {
     _todoList.removeWhere((todo) => todo.id == id);
     notifyListeners();
   }
-
-  void handleTaskUpdateEvent() => notifyListeners();
 
   String toJSONString() {
     return jsonEncode(_todoList.map((task) => task.toJSONString()).toList());

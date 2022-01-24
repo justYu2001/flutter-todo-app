@@ -96,14 +96,6 @@ class TitleBar extends StatelessWidget {
 class TodoItem extends StatelessWidget {
   const TodoItem({Key? key}) : super(key: key);
 
-  void toggleImportantState(task) {
-    if(task.isImportant) {
-      task.markAsUnimportant();
-    } else {
-      task.markAsImportant();
-    }
-  }
-
   Icon getTrailingIcon(task) {
     if(task.isImportant) {
       return const Icon(
@@ -122,9 +114,6 @@ class TodoItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var todo = context.watch<TodoModal>();
-    var task = context.watch<Task>();
-
     return Container(
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.all(Radius.circular(4.0)),
@@ -148,41 +137,51 @@ class TodoItem extends StatelessWidget {
       ),
       child: Row(
         children: [
-          SizedBox(
-            width: 25.0,
-            height: 25.0,
-            child: OutlinedButton(
-              style: OutlinedButton.styleFrom(
-                shape: const CircleBorder(),
-                primary: Colors.white,
-                side: const BorderSide(
-                    color: Color.fromARGB(255, 200, 200, 200), width: 2.0
-                ),
-              ),
-              child: const SizedBox(),
-              onPressed: () {
-                task.complete();
-                todo.handleTaskUpdateEvent();
-              },
-            ),
+          Consumer2<Task, TodoModal>(
+              builder: (context, task, todo, child) {
+                return SizedBox(
+                  width: 25.0,
+                  height: 25.0,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      shape: const CircleBorder(),
+                      primary: Colors.white,
+                      side: const BorderSide(
+                          color: Color.fromARGB(255, 200, 200, 200), width: 2.0
+                      ),
+                    ),
+                    child: const SizedBox(),
+                    onPressed: () {
+                      todo.toggleCompleted(task);
+                    },
+                  ),
+                );
+              }
           ),
           const SizedBox(width: 8.0),
-          Expanded(
-            child: Text(
-              task.title,
-              style: const TextStyle(
-                fontSize: 18.0,
-              ),
-            ),
+          Consumer<Task>(
+              builder: (context, task, child) {
+                return Expanded(
+                  child: Text(
+                    task.title,
+                    style: const TextStyle(
+                      fontSize: 18.0,
+                    ),
+                  ),
+                );
+              },
           ),
-          IconButton(
-            icon: getTrailingIcon(task),
-            alignment: const Alignment(3.0 ,0),
-            splashColor: Colors.transparent,
-            onPressed: () {
-              toggleImportantState(task);
-              todo.handleTaskUpdateEvent();
-            },
+          Consumer(
+              builder: (context, Task task, child) {
+                return IconButton(
+                  icon: getTrailingIcon(task),
+                  alignment: const Alignment(3.0 ,0),
+                  splashColor: Colors.transparent,
+                  onPressed: () {
+                    task.toggleImportant();
+                  },
+                );
+              }
           ),
         ],
       ),
@@ -195,20 +194,22 @@ class TodoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final todo = context.watch<TodoModal>();
-
     return Expanded(
-        child: ListView.builder(
-          shrinkWrap: true,
-          padding: const EdgeInsets.symmetric(
-            vertical: 0.0,
-            horizontal: 20.0,
-          ),
-          itemCount: todo.incomplete.length,
-          itemBuilder: (context, index) => ChangeNotifierProvider.value(
-            value: todo.incomplete[index],
-            child: const TodoItem(),
-          ),
+        child: Consumer<TodoModal>(
+          builder: (context, todo, child) {
+            return ListView.builder(
+              shrinkWrap: true,
+              padding: const EdgeInsets.symmetric(
+                vertical: 0.0,
+                horizontal: 20.0,
+              ),
+              itemCount: todo.incomplete.length,
+              itemBuilder: (context, index) => ChangeNotifierProvider.value(
+                value: todo.incomplete[index],
+                child: const TodoItem(),
+              ),
+            );
+          },
         ),
     );
   }
