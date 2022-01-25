@@ -97,7 +97,23 @@ class TitleBar extends StatelessWidget {
 class TodoItem extends StatelessWidget {
   const TodoItem({Key? key}) : super(key: key);
 
-  Icon getTrailingIcon(task) {
+  Icon getPrefixIcon(Task task) {
+    if(task.isDone) {
+      return const Icon(
+        Icons.check_circle,
+        color: Color.fromARGB(255, 200, 200, 200),
+        size: 24.0,
+      );
+    } else {
+      return const Icon(
+        Icons.brightness_1_outlined,
+        color: Color.fromARGB(255, 200, 200, 200),
+        size: 24.0,
+      );
+    }
+  }
+
+  Icon getTrailingIcon(Task task) {
     if(task.isImportant) {
       return const Icon(
         Icons.star,
@@ -175,23 +191,15 @@ class TodoItem extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Consumer2<Task, TodoModal>(
-                    builder: (context, task, todo, child) {
+                Consumer<Task>(
+                    builder: (context, task, child) {
                       return SizedBox(
                         width: 25.0,
                         height: 25.0,
-                        child: OutlinedButton(
-                          style: OutlinedButton.styleFrom(
-                            shape: const CircleBorder(),
-                            primary: Colors.white,
-                            side: const BorderSide(
-                                color: Color.fromARGB(255, 200, 200, 200), width: 2.0
-                            ),
-                          ),
-                          child: const SizedBox(),
-                          onPressed: () {
-                            todo.toggleCompleted(task);
-                          },
+                        child: IconButton(
+                          padding: const EdgeInsets.all(0.0),
+                          icon: getPrefixIcon(task),
+                          onPressed: () => task.toggleCompleted(),
                         ),
                       );
                     }
@@ -202,8 +210,10 @@ class TodoItem extends StatelessWidget {
                     return Expanded(
                       child: Text(
                         task.title,
-                        style: const TextStyle(
+                        style: TextStyle(
+                          decoration: task.isDone ? TextDecoration.lineThrough : TextDecoration.none,
                           fontSize: 18.0,
+                          color: task.isDone ? const Color.fromARGB(255, 200, 200, 200) : Colors.black,
                         ),
                       ),
                     );
@@ -244,9 +254,9 @@ class TodoList extends StatelessWidget {
                 vertical: 0.0,
                 horizontal: 20.0,
               ),
-              itemCount: todo.incomplete.length,
+              itemCount: todo.all.length,
               itemBuilder: (context, index) => ChangeNotifierProvider.value(
-                value: todo.incomplete[index],
+                value: todo.all[index],
                 child: const TodoItem(),
               ),
             );

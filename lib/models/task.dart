@@ -16,6 +16,7 @@ class Task extends ChangeNotifier {
 
   void toggleCompleted() {
     _isDone = !_isDone;
+    notifyListeners();
   }
 
   void toggleImportant() {
