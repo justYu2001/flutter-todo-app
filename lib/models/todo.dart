@@ -32,9 +32,12 @@ class TodoModal extends ChangeNotifier {
     notifyListeners();
   }
 
-  void delete(int id) {
+  void delete(int id, [bool neededRebuilding = true]) {
     _todoList.removeWhere((todo) => todo.id == id);
-    notifyListeners();
+
+    if(neededRebuilding) {
+      notifyListeners();
+    }
   }
 
   String toJSONString() {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:provider/provider.dart';
 
 import 'package:flutter_todo_app/models/todo.dart';
@@ -116,7 +117,7 @@ class TodoItem extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: const BorderRadius.all(Radius.circular(4.0)),
+        // borderRadius: const BorderRadius.all(Radius.circular(4.0)),
         color: Colors.white,
         boxShadow: [
           BoxShadow(
@@ -127,63 +128,103 @@ class TodoItem extends StatelessWidget {
           ),
         ],
       ),
-      padding: const EdgeInsets.symmetric(
-        vertical: 3.0,
-        horizontal: 10.0,
-      ),
       margin: const EdgeInsets.symmetric(
         vertical: 5.0,
         horizontal: 0.0,
       ),
-      child: Row(
-        children: [
-          Consumer2<Task, TodoModal>(
-              builder: (context, task, todo, child) {
-                return SizedBox(
-                  width: 25.0,
-                  height: 25.0,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      shape: const CircleBorder(),
-                      primary: Colors.white,
-                      side: const BorderSide(
-                          color: Color.fromARGB(255, 200, 200, 200), width: 2.0
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(4.0),
+        child: Slidable(
+          endActionPane: ActionPane(
+            extentRatio: 0.3,
+            motion: const ScrollMotion(),
+            children: [
+              Consumer2<Task, TodoModal>(
+                  builder: (context, task, todo, child) {
+                    return SlidableAction(
+                      backgroundColor: Colors.red,
+                      icon: Icons.delete,
+                      label: '刪除',
+                      onPressed: (context) => showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text('將永遠刪除 ${task.title}'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  todo.delete(task.id);
+                                  Navigator.pop(context);
+                                },
+                                child: const Text('刪除任務'),
+                              ),
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: const Text('取消'),
+                              ),
+                            ],
+                          ),
                       ),
-                    ),
-                    child: const SizedBox(),
-                    onPressed: () {
-                      todo.toggleCompleted(task);
-                    },
-                  ),
-                );
-              }
+                    );
+                  }),
+            ],
           ),
-          const SizedBox(width: 8.0),
-          Consumer<Task>(
-              builder: (context, task, child) {
-                return Expanded(
-                  child: Text(
-                    task.title,
-                    style: const TextStyle(
-                      fontSize: 18.0,
-                    ),
-                  ),
-                );
-              },
-          ),
-          Consumer(
-              builder: (context, Task task, child) {
-                return IconButton(
-                  icon: getTrailingIcon(task),
-                  alignment: const Alignment(3.0 ,0),
-                  splashColor: Colors.transparent,
-                  onPressed: () {
-                    task.toggleImportant();
+          child: Padding(
+            padding: const EdgeInsets.symmetric(
+              vertical: 3.0,
+              horizontal: 10.0,
+            ),
+            child: Row(
+              children: [
+                Consumer2<Task, TodoModal>(
+                    builder: (context, task, todo, child) {
+                      return SizedBox(
+                        width: 25.0,
+                        height: 25.0,
+                        child: OutlinedButton(
+                          style: OutlinedButton.styleFrom(
+                            shape: const CircleBorder(),
+                            primary: Colors.white,
+                            side: const BorderSide(
+                                color: Color.fromARGB(255, 200, 200, 200), width: 2.0
+                            ),
+                          ),
+                          child: const SizedBox(),
+                          onPressed: () {
+                            todo.toggleCompleted(task);
+                          },
+                        ),
+                      );
+                    }
+                ),
+                const SizedBox(width: 8.0),
+                Consumer<Task>(
+                  builder: (context, task, child) {
+                    return Expanded(
+                      child: Text(
+                        task.title,
+                        style: const TextStyle(
+                          fontSize: 18.0,
+                        ),
+                      ),
+                    );
                   },
-                );
-              }
+                ),
+                Consumer(
+                    builder: (context, Task task, child) {
+                      return IconButton(
+                        icon: getTrailingIcon(task),
+                        alignment: const Alignment(3.0 ,0),
+                        splashColor: Colors.transparent,
+                        onPressed: () {
+                          task.toggleImportant();
+                        },
+                      );
+                    }
+                ),
+              ],
+            ),
           ),
-        ],
+        ),
       ),
     );
   }
