@@ -7,7 +7,7 @@ import 'package:flutter_todo_app/utils/locator.dart';
 
 class TaskModel extends ChangeNotifier {
   final TodoStorage _todoStorage = locator<TodoStorage>();
-  final TodoListModel _todoListModel = locator.get<TodoListModel>();
+  final TodoListModel _todoListModel = locator<TodoListModel>();
 
   int id = DateTime.now().microsecondsSinceEpoch;
   String title;
@@ -26,6 +26,7 @@ class TaskModel extends ChangeNotifier {
 
   void toggleCompleted() {
     isDone = !isDone;
+    print(_todoListModel.todoList);
     _todoStorage.update(_todoListModel.toJSONString());
     notifyListeners();
   }

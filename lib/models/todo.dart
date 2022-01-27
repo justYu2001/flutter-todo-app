@@ -30,6 +30,7 @@ class TodoListModel extends ChangeNotifier {
 
   void add(TaskModel task) {
     _todoList.add(task);
+    print(_todoList);
     _todoStorage.update(toJSONString());
     notifyListeners();
   }

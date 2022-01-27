@@ -5,6 +5,6 @@ import 'package:flutter_todo_app/utils/local_storage.dart';
 GetIt locator = GetIt.instance;
 
 void setupLocator() {
-  locator.registerSingleton(TodoStorage());
-  locator.registerSingleton(TodoListModel());
+  locator.registerLazySingleton(() => TodoStorage());
+  locator.registerLazySingleton(() => TodoListModel());
 }
