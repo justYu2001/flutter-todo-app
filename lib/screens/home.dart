@@ -97,11 +97,11 @@ class TitleBar extends StatelessWidget {
 class TodoItem extends StatelessWidget {
   const TodoItem({Key? key}) : super(key: key);
 
-  Icon getPrefixIcon(Task task) {
+  Icon getPrefixIcon(TaskModel task) {
     if(task.isDone) {
       return const Icon(
         Icons.check_circle,
-        color: Color.fromARGB(255, 200, 200, 200),
+        color: Colors.blue,
         size: 24.0,
       );
     } else {
@@ -113,7 +113,7 @@ class TodoItem extends StatelessWidget {
     }
   }
 
-  Icon getTrailingIcon(Task task) {
+  Icon getTrailingIcon(TaskModel task) {
     if(task.isImportant) {
       return const Icon(
         Icons.star,
@@ -155,8 +155,8 @@ class TodoItem extends StatelessWidget {
             extentRatio: 0.3,
             motion: const ScrollMotion(),
             children: [
-              Consumer2<Task, TodoModal>(
-                  builder: (context, task, todo, child) {
+              Consumer<TaskModel>(
+                  builder: (context, task, child) {
                     return SlidableAction(
                       backgroundColor: Colors.red,
                       icon: Icons.delete,
@@ -168,7 +168,7 @@ class TodoItem extends StatelessWidget {
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  todo.delete(task.id);
+                                  task.delete();
                                   Navigator.pop(context);
                                 },
                                 child: const Text('刪除任務'),
@@ -191,7 +191,7 @@ class TodoItem extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Consumer<Task>(
+                Consumer<TaskModel>(
                     builder: (context, task, child) {
                       return SizedBox(
                         width: 25.0,
@@ -205,7 +205,7 @@ class TodoItem extends StatelessWidget {
                     }
                 ),
                 const SizedBox(width: 8.0),
-                Consumer<Task>(
+                Consumer<TaskModel>(
                   builder: (context, task, child) {
                     return Expanded(
                       child: Text(
@@ -220,14 +220,12 @@ class TodoItem extends StatelessWidget {
                   },
                 ),
                 Consumer(
-                    builder: (context, Task task, child) {
+                    builder: (context, TaskModel task, child) {
                       return IconButton(
                         icon: getTrailingIcon(task),
                         alignment: const Alignment(3.0 ,0),
                         splashColor: Colors.transparent,
-                        onPressed: () {
-                          task.toggleImportant();
-                        },
+                        onPressed: () => task.toggleImportant(),
                       );
                     }
                 ),
@@ -246,17 +244,17 @@ class TodoList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: Consumer<TodoModal>(
-          builder: (context, todo, child) {
+        child: Consumer<TodoListModel>(
+          builder: (context, model, child) {
             return ListView.builder(
               shrinkWrap: true,
               padding: const EdgeInsets.symmetric(
                 vertical: 0.0,
                 horizontal: 20.0,
               ),
-              itemCount: todo.all.length,
+              itemCount: model.todoList.length,
               itemBuilder: (context, index) => ChangeNotifierProvider.value(
-                value: todo.all[index],
+                value: model.todoList[index],
                 child: const TodoItem(),
               ),
             );
@@ -273,8 +271,6 @@ class NewTaskInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    var todo = context.watch<TodoModal>();
-
     return Container(
       color: Colors.black.withAlpha(179),
       height: double.infinity,
@@ -304,33 +300,35 @@ class NewTaskInput extends StatelessWidget {
               vertical: 8.0,
               horizontal: 12.0,
             ),
-            child: TextField(
-              autofocus: true,
-              controller: textFieldController,
-              decoration: const InputDecoration(
-                prefixIcon: Icon(
-                  Icons.add,
-                  size: 28.0,
+            child: Consumer<TodoListModel>(
+              builder: (context, model, child) => TextField(
+                autofocus: true,
+                controller: textFieldController,
+                decoration: const InputDecoration(
+                  prefixIcon: Icon(
+                    Icons.add,
+                    size: 28.0,
+                  ),
+                  hintStyle: TextStyle(fontSize: 18.0),
+                  hintText: '新增任務',
+                  contentPadding: EdgeInsets.only(
+                    top: 12.0,
+                  ),
+                  border: InputBorder.none,
                 ),
-                hintStyle: TextStyle(fontSize: 18.0),
-                hintText: '新增任務',
-                contentPadding: EdgeInsets.only(
-                  top: 12.0,
+                style: const TextStyle(
+                  fontSize: 18.0,
                 ),
-                border: InputBorder.none,
-              ),
-              style: const TextStyle(
-                fontSize: 18.0,
-              ),
-              onSubmitted: (String value) {
-                if(value != '') {
-                  final newTask = Task(value);
-                  todo.add(newTask);
-                }
+                onSubmitted: (String value) {
+                  if(value != '') {
+                    final newTask = TaskModel(value);
+                    model.add(newTask);
+                  }
 
-                Navigator.pop(context);
-              },
-            ),
+                  Navigator.pop(context);
+                },
+              ),
+            )
           ),
         ],
       )

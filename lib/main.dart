@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_todo_app/models/todo.dart';
+import 'package:flutter_todo_app/utils/locator.dart';
 import 'package:provider/provider.dart';
-import 'screens/home.dart';
-import 'models/todo.dart';
+import 'package:flutter_todo_app/screens/home.dart';
 
 void main() {
+  setupLocator();
   runApp(const MyApp());
 }
 
@@ -13,8 +15,13 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    TodoListModel todoListModel = locator<TodoListModel>();
+
     return ChangeNotifierProvider(
-      create: (context) => TodoModal(),
+      create: (context) {
+        todoListModel.initialize();
+        return todoListModel;
+      },
       child: MaterialApp(
         title: 'Flutter Todo App',
         theme: ThemeData(
